@@ -104,7 +104,7 @@ public class StopsFragment extends Fragment
         vStopCardList.setHasFixedSize(true);
         vStopCardList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        mCardAdapter = new StopCardAdapter(mListener);
+        mCardAdapter = new StopCardAdapter(mListener, vStopCardList);
 
         vSwipeRefreshLayout.setOnRefreshListener(this);
         vSwipeRefreshLayout.setColorSchemeResources(R.color.bold_orange, R.color.bold_blue);

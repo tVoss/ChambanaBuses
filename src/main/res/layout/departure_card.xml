@@ -43,7 +43,7 @@
             android:layout_toLeftOf="@+id/departure_istop"
             android:layout_toStartOf="@id/departure_istop"
             android:singleLine="true"
-            android:ellipsize="marquee"/>
+            android:ellipsize="end"/>
 
         <View
             android:id="@+id/departure_divider"

@@ -3,6 +3,7 @@ package com.prettymuchabigdeal.chambanabuses.adapter;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -26,9 +27,12 @@ public class StopCardAdapter extends RecyclerView.Adapter<StopCardAdapter.StopCa
 
     private List<Stop> mStops = Collections.emptyList();
     private StopsFragment.OnStopSelectedListener mListener;
+    private RecyclerView mRecyclerView;
 
-    public StopCardAdapter(StopsFragment.OnStopSelectedListener listener) {
+    public StopCardAdapter(StopsFragment.OnStopSelectedListener listener,
+                           RecyclerView view) {
         mListener = listener;
+        mRecyclerView = view;
     }
 
     public void setStops(List<Stop> stops) {
@@ -40,6 +44,7 @@ public class StopCardAdapter extends RecyclerView.Adapter<StopCardAdapter.StopCa
     public StopCardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.stop_card, parent, false);
+
         view.setOnClickListener(this);
         return new StopCardViewHolder(view);
     }
@@ -50,8 +55,6 @@ public class StopCardAdapter extends RecyclerView.Adapter<StopCardAdapter.StopCa
 
         holder.vStopName.setText(s.getStopName());
         holder.vStopCode.setText(s.getCode());
-        holder.vStopFavorite.setEnabled(false);
-        holder.vStopId.setText(s.getStopID());
 
     }
 
@@ -62,8 +65,9 @@ public class StopCardAdapter extends RecyclerView.Adapter<StopCardAdapter.StopCa
 
     @Override
     public void onClick(View v) {
-        // Yummy
-        mListener.onStopSelected(((TextView)v.findViewById(R.id.stop_id)).getText().toString());
+        int position = mRecyclerView.getChildPosition(v);
+        mListener.onStopSelected(mStops.get(position).getStopID());
+
     }
 
     static class StopCardViewHolder extends RecyclerView.ViewHolder {
@@ -72,10 +76,6 @@ public class StopCardAdapter extends RecyclerView.Adapter<StopCardAdapter.StopCa
         TextView vStopName;
         @InjectView(R.id.stop_code)
         TextView vStopCode;
-        @InjectView(R.id.stop_favorite)
-        CheckBox vStopFavorite;
-        @InjectView(R.id.stop_id)
-        TextView vStopId;
 
         public StopCardViewHolder(View itemView) {
             super(itemView);

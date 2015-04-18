@@ -12,7 +12,8 @@ public class Stop extends SugarRecord<Stop> {
     private float stopLat;
     private float stopLon;
     private String stopName;
-    private boolean favorite;
+
+    private boolean mFavorite;
 
     public String getStopName() {
         return stopName;
@@ -32,6 +33,14 @@ public class Stop extends SugarRecord<Stop> {
 
     public String getCode() {
         return code;
+    }
+
+    public boolean isFavorite() {
+        return mFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        mFavorite = favorite;
     }
 
     @Override
