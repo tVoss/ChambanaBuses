@@ -66,9 +66,9 @@ public class StopsActivity extends ActionBarActivity
     }
 
     @Override
-    public void onStopSelected(String stopId) {
+    public void onStopSelected(long stopDbId) {
         Intent intent = new Intent(this, DeparturesActivity.class);
-        intent.putExtra(DeparturesActivity.ARG_STOP, stopId);
+        intent.putExtra(DeparturesActivity.ARG_STOP, stopDbId);
         startActivity(intent);
     }
 
@@ -85,7 +85,7 @@ public class StopsActivity extends ActionBarActivity
 
         @Override
         public int getCount() {
-            return 2;
+            return StopsFragment.Mode.values().length;
         }
 
         @Override

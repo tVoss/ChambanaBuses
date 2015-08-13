@@ -1,14 +1,12 @@
 package com.prettymuchabigdeal.chambanabuses.adapter;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
+import com.orm.StringUtil;
 import com.prettymuchabigdeal.chambanabuses.R;
 import com.prettymuchabigdeal.chambanabuses.StopsFragment;
 import com.prettymuchabigdeal.chambanabuses.model.Stop;
@@ -66,7 +64,15 @@ public class StopCardAdapter extends RecyclerView.Adapter<StopCardAdapter.StopCa
     @Override
     public void onClick(View v) {
         int position = mRecyclerView.getChildPosition(v);
-        mListener.onStopSelected(mStops.get(position).getStopID());
+        Stop stop = mStops.get(position);
+        Long id;
+        if((id = stop.getId()) != null){
+            mListener.onStopSelected(id);
+            return;
+        }
+
+        stop = Stop.find(Stop.class, StringUtil.toSQLName("code") + " = ?", stop.getCode()).get(0);
+        mListener.onStopSelected(stop.getId());
 
     }
 

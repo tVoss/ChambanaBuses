@@ -7,10 +7,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.prettymuchabigdeal.chambanabuses.adapter.DepartureCardAdapter;
 import com.prettymuchabigdeal.chambanabuses.model.Departure;
+import com.prettymuchabigdeal.chambanabuses.model.Stop;
 import com.prettymuchabigdeal.chambanabuses.mtd.MTDService;
 import com.prettymuchabigdeal.chambanabuses.mtd.response.DepartureResponse;
 
@@ -24,7 +28,7 @@ import retrofit.client.Response;
 
 
 public class DeparturesActivity extends ActionBarActivity
-        implements SwipeRefreshLayout.OnRefreshListener, Callback<DepartureResponse> {
+        implements SwipeRefreshLayout.OnRefreshListener, Callback<DepartureResponse>, CompoundButton.OnCheckedChangeListener {
 
     private static final String STATE_STOP = "stateStop";
     public static final String ARG_STOP = "argStop";
@@ -35,23 +39,34 @@ public class DeparturesActivity extends ActionBarActivity
     @InjectView(R.id.card_list)
     RecyclerView vDepartureCardList;
 
+    @InjectView(R.id.stop_name)
+    TextView vStopName;
+    @InjectView(R.id.stop_favorite)
+    CheckBox vStopFavorite;
+
     private DepartureCardAdapter mCardAdapter;
 
-    private String mStop;
+    private long mStopDbId;
+    private Stop mStop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.swipe_card_layout);
+        setContentView(R.layout.activity_departures);
         ButterKnife.inject(this);
 
         if(savedInstanceState == null){
-            mStop = getIntent().getStringExtra(ARG_STOP);
+            mStopDbId = getIntent().getLongExtra(ARG_STOP, -1);
         } else {
-            mStop = savedInstanceState.getString(STATE_STOP);
+            mStopDbId = savedInstanceState.getLong(STATE_STOP);
         }
 
-        setTitle(mStop);
+        mStop = Stop.findById(Stop.class, mStopDbId);
+        setTitle(mStop.getStopName());
+        vStopName.setText(mStop.getStopName());
+
+        vStopFavorite.setChecked(mStop.isFavorite());
+        vStopFavorite.setOnCheckedChangeListener(this);
 
         vDepartureCardList.setHasFixedSize(true);
         vDepartureCardList.setLayoutManager(new LinearLayoutManager(this));
@@ -75,7 +90,7 @@ public class DeparturesActivity extends ActionBarActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(STATE_STOP, mStop);
+        outState.putLong(STATE_STOP, mStopDbId);
         super.onSaveInstanceState(outState);
     }
 
@@ -103,7 +118,7 @@ public class DeparturesActivity extends ActionBarActivity
 
     @Override
     public void onRefresh() {
-        MTDService.Helper.create().getDeparturesByStop(mStop, null, 60, this);
+        MTDService.Helper.create().getDeparturesByStop(mStop.getStopID(), null, 60, this);
     }
 
     @Override
@@ -122,4 +137,9 @@ public class DeparturesActivity extends ActionBarActivity
         Toast.makeText(this, error.getResponse().getReason(), Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        mStop.setFavorite(isChecked);
+        mStop.save();
+    }
 }

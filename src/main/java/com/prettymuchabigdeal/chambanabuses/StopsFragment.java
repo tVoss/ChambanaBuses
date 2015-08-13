@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.orm.StringUtil;
 import com.prettymuchabigdeal.chambanabuses.adapter.StopCardAdapter;
 import com.prettymuchabigdeal.chambanabuses.model.Stop;
 import com.prettymuchabigdeal.chambanabuses.mtd.MTDService;
@@ -58,6 +59,8 @@ public class StopsFragment extends Fragment
     private GoogleApiClient mClient;
     private StopCardAdapter mCardAdapter;
     private OnStopSelectedListener mListener;
+
+    private boolean mDoneInitialRefresh;
 
     /**
      * Use this factory method to create a new instance of
@@ -113,7 +116,7 @@ public class StopsFragment extends Fragment
         vSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                if(mCardAdapter.getItemCount() == 0)
+                if(!mDoneInitialRefresh)
                     vSwipeRefreshLayout.setRefreshing(true);
             }
         });
@@ -153,7 +156,7 @@ public class StopsFragment extends Fragment
                 }
                 break;
             case FAVORITE:
-                //TODO
+                stops = Stop.find(Stop.class, StringUtil.toSQLName("mFavorite") + " = ?", "1");
                 break;
             case NEARBY:
                 mClient.connect();
@@ -162,7 +165,7 @@ public class StopsFragment extends Fragment
 
         mCardAdapter.setStops(stops);
         vSwipeRefreshLayout.setRefreshing(false);
-
+        mDoneInitialRefresh = true;
     }
 
 
@@ -175,6 +178,7 @@ public class StopsFragment extends Fragment
 
         mCardAdapter.setStops(Arrays.asList(stopResponse.stops));
         vSwipeRefreshLayout.setRefreshing(false);
+        mDoneInitialRefresh = true;
     }
 
     @Override
@@ -190,6 +194,7 @@ public class StopsFragment extends Fragment
                     10, this);
         } else {
             vSwipeRefreshLayout.setRefreshing(false);
+            mDoneInitialRefresh = true;
         }
 
         mClient.disconnect();
@@ -216,7 +221,7 @@ public class StopsFragment extends Fragment
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnStopSelectedListener {
-        void onStopSelected(String stopId);
+        void onStopSelected(long stopDbId);
     }
 
 }
